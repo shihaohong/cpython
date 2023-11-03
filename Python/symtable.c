@@ -1308,6 +1308,10 @@ symtable_visit_stmt(struct symtable *st, stmt_ty s)
         if (s->v.While.orelse)
             VISIT_SEQ(st, stmt, s->v.While.orelse);
         break;
+    case Dowhile_kind:
+        VISIT_SEQ(st, stmt, s->v.Dowhile.body);
+        VISIT(st, expr, s->v.Dowhile.test);
+        break;
     case If_kind:
         /* XXX if 0: and lookup_yield() hacks */
         VISIT(st, expr, s->v.If.test);
