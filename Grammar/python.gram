@@ -380,7 +380,7 @@ while_stmt[stmt_ty]:
 
 dowhile_stmt[stmt_ty]:
     | invalid_dowhile_stmt
-    | 'dowhile' ':' a=block 'whiledo' b=named_expression { _PyAST_Dowhile(a, b, EXTRA) }
+    | 'dowhile' ':' a=block 'whiledo' b=named_expression NEWLINE { _PyAST_Dowhile(a, b, EXTRA) }
 
 # For statement
 # -------------

@@ -48,7 +48,7 @@ static KeywordToken *reserved_keywords[] = {
         {"yield", 576},
         {"break", 508},
         {"class", 656},
-        {"while", 649},
+        {"while", 647},
         {"False", 605},
         {NULL, -1},
     },
@@ -62,7 +62,7 @@ static KeywordToken *reserved_keywords[] = {
         {NULL, -1},
     },
     (KeywordToken[]) {
-        {"dowhile", 544},
+        {"dowhile", 649},
         {"whiledo", 545},
         {"finally", 633},
         {NULL, -1},
@@ -2131,7 +2131,7 @@ compound_stmt_rule(Parser *p)
         D(fprintf(stderr, "%*c> compound_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "&'while' while_stmt"));
         stmt_ty while_stmt_var;
         if (
-            _PyPegen_lookahead_with_int(1, _PyPegen_expect_token, p, 649)  // token='while'
+            _PyPegen_lookahead_with_int(1, _PyPegen_expect_token, p, 647)  // token='while'
             &&
             (while_stmt_var = while_stmt_rule(p))  // while_stmt
         )
@@ -2152,7 +2152,7 @@ compound_stmt_rule(Parser *p)
         D(fprintf(stderr, "%*c> compound_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "&'dowhile' dowhile_stmt"));
         stmt_ty dowhile_stmt_var;
         if (
-            _PyPegen_lookahead_with_int(1, _PyPegen_expect_token, p, 544)  // token='dowhile'
+            _PyPegen_lookahead_with_int(1, _PyPegen_expect_token, p, 649)  // token='dowhile'
             &&
             (dowhile_stmt_var = dowhile_stmt_rule(p))  // dowhile_stmt
         )
@@ -6220,7 +6220,7 @@ while_stmt_rule(Parser *p)
         asdl_stmt_seq* b;
         void *c;
         if (
-            (_keyword = _PyPegen_expect_token(p, 649))  // token='while'
+            (_keyword = _PyPegen_expect_token(p, 647))  // token='while'
             &&
             (a = named_expression_rule(p))  // named_expression
             &&
@@ -6259,7 +6259,9 @@ while_stmt_rule(Parser *p)
     return _res;
 }
 
-// dowhile_stmt: invalid_dowhile_stmt | 'dowhile' ':' block 'whiledo' named_expression
+// dowhile_stmt:
+//     | invalid_dowhile_stmt
+//     | 'dowhile' ':' block 'whiledo' named_expression NEWLINE
 static stmt_ty
 dowhile_stmt_rule(Parser *p)
 {
@@ -6301,19 +6303,20 @@ dowhile_stmt_rule(Parser *p)
         D(fprintf(stderr, "%*c%s dowhile_stmt[%d-%d]: %s failed!\n", p->level, ' ',
                   p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "invalid_dowhile_stmt"));
     }
-    { // 'dowhile' ':' block 'whiledo' named_expression
+    { // 'dowhile' ':' block 'whiledo' named_expression NEWLINE
         if (p->error_indicator) {
             p->level--;
             return NULL;
         }
-        D(fprintf(stderr, "%*c> dowhile_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'dowhile' ':' block 'whiledo' named_expression"));
+        D(fprintf(stderr, "%*c> dowhile_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'dowhile' ':' block 'whiledo' named_expression NEWLINE"));
         Token * _keyword;
         Token * _keyword_1;
         Token * _literal;
         asdl_stmt_seq* a;
         expr_ty b;
+        Token * newline_var;
         if (
-            (_keyword = _PyPegen_expect_token(p, 544))  // token='dowhile'
+            (_keyword = _PyPegen_expect_token(p, 649))  // token='dowhile'
             &&
             (_literal = _PyPegen_expect_token(p, 11))  // token=':'
             &&
@@ -6322,9 +6325,11 @@ dowhile_stmt_rule(Parser *p)
             (_keyword_1 = _PyPegen_expect_token(p, 545))  // token='whiledo'
             &&
             (b = named_expression_rule(p))  // named_expression
+            &&
+            (newline_var = _PyPegen_expect_token(p, NEWLINE))  // token='NEWLINE'
         )
         {
-            D(fprintf(stderr, "%*c+ dowhile_stmt[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'dowhile' ':' block 'whiledo' named_expression"));
+            D(fprintf(stderr, "%*c+ dowhile_stmt[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'dowhile' ':' block 'whiledo' named_expression NEWLINE"));
             Token *_token = _PyPegen_get_last_nonnwhitespace_token(p);
             if (_token == NULL) {
                 p->level--;
@@ -6344,7 +6349,7 @@ dowhile_stmt_rule(Parser *p)
         }
         p->mark = _mark;
         D(fprintf(stderr, "%*c%s dowhile_stmt[%d-%d]: %s failed!\n", p->level, ' ',
-                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'dowhile' ':' block 'whiledo' named_expression"));
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'dowhile' ':' block 'whiledo' named_expression NEWLINE"));
     }
     _res = NULL;
   done:
@@ -23098,7 +23103,7 @@ invalid_while_stmt_rule(Parser *p)
         expr_ty named_expression_var;
         Token * newline_var;
         if (
-            (_keyword = _PyPegen_expect_token(p, 649))  // token='while'
+            (_keyword = _PyPegen_expect_token(p, 647))  // token='while'
             &&
             (named_expression_var = named_expression_rule(p))  // named_expression
             &&
@@ -23129,7 +23134,7 @@ invalid_while_stmt_rule(Parser *p)
         expr_ty named_expression_var;
         Token * newline_var;
         if (
-            (a = _PyPegen_expect_token(p, 649))  // token='while'
+            (a = _PyPegen_expect_token(p, 647))  // token='while'
             &&
             (named_expression_var = named_expression_rule(p))  // named_expression
             &&
@@ -23159,9 +23164,7 @@ invalid_while_stmt_rule(Parser *p)
     return _res;
 }
 
-// invalid_dowhile_stmt:
-//     | 'while' named_expression NEWLINE
-//     | 'while' named_expression ':' NEWLINE !INDENT
+// invalid_dowhile_stmt: 'dowhile' NEWLINE | 'dowhile' ':' NEWLINE !INDENT
 static void *
 invalid_dowhile_stmt_rule(Parser *p)
 {
@@ -23175,24 +23178,21 @@ invalid_dowhile_stmt_rule(Parser *p)
     }
     void * _res = NULL;
     int _mark = p->mark;
-    { // 'while' named_expression NEWLINE
+    { // 'dowhile' NEWLINE
         if (p->error_indicator) {
             p->level--;
             return NULL;
         }
-        D(fprintf(stderr, "%*c> invalid_dowhile_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'while' named_expression NEWLINE"));
+        D(fprintf(stderr, "%*c> invalid_dowhile_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'dowhile' NEWLINE"));
         Token * _keyword;
-        expr_ty named_expression_var;
         Token * newline_var;
         if (
-            (_keyword = _PyPegen_expect_token(p, 649))  // token='while'
-            &&
-            (named_expression_var = named_expression_rule(p))  // named_expression
+            (_keyword = _PyPegen_expect_token(p, 649))  // token='dowhile'
             &&
             (newline_var = _PyPegen_expect_token(p, NEWLINE))  // token='NEWLINE'
         )
         {
-            D(fprintf(stderr, "%*c+ invalid_dowhile_stmt[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'while' named_expression NEWLINE"));
+            D(fprintf(stderr, "%*c+ invalid_dowhile_stmt[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'dowhile' NEWLINE"));
             _res = RAISE_SYNTAX_ERROR ( "expected ':'" );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
@@ -23203,22 +23203,19 @@ invalid_dowhile_stmt_rule(Parser *p)
         }
         p->mark = _mark;
         D(fprintf(stderr, "%*c%s invalid_dowhile_stmt[%d-%d]: %s failed!\n", p->level, ' ',
-                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'while' named_expression NEWLINE"));
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'dowhile' NEWLINE"));
     }
-    { // 'while' named_expression ':' NEWLINE !INDENT
+    { // 'dowhile' ':' NEWLINE !INDENT
         if (p->error_indicator) {
             p->level--;
             return NULL;
         }
-        D(fprintf(stderr, "%*c> invalid_dowhile_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'while' named_expression ':' NEWLINE !INDENT"));
+        D(fprintf(stderr, "%*c> invalid_dowhile_stmt[%d-%d]: %s\n", p->level, ' ', _mark, p->mark, "'dowhile' ':' NEWLINE !INDENT"));
         Token * _literal;
         Token * a;
-        expr_ty named_expression_var;
         Token * newline_var;
         if (
-            (a = _PyPegen_expect_token(p, 649))  // token='while'
-            &&
-            (named_expression_var = named_expression_rule(p))  // named_expression
+            (a = _PyPegen_expect_token(p, 649))  // token='dowhile'
             &&
             (_literal = _PyPegen_expect_token(p, 11))  // token=':'
             &&
@@ -23227,8 +23224,8 @@ invalid_dowhile_stmt_rule(Parser *p)
             _PyPegen_lookahead_with_int(0, _PyPegen_expect_token, p, INDENT)  // token=INDENT
         )
         {
-            D(fprintf(stderr, "%*c+ invalid_dowhile_stmt[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'while' named_expression ':' NEWLINE !INDENT"));
-            _res = RAISE_INDENTATION_ERROR ( "expected an indented block after 'while' statement on line %d" , a -> lineno );
+            D(fprintf(stderr, "%*c+ invalid_dowhile_stmt[%d-%d]: %s succeeded!\n", p->level, ' ', _mark, p->mark, "'dowhile' ':' NEWLINE !INDENT"));
+            _res = RAISE_INDENTATION_ERROR ( "expected an indented block after 'dowhile' statement on line %d" , a -> lineno );
             if (_res == NULL && PyErr_Occurred()) {
                 p->error_indicator = 1;
                 p->level--;
@@ -23238,7 +23235,7 @@ invalid_dowhile_stmt_rule(Parser *p)
         }
         p->mark = _mark;
         D(fprintf(stderr, "%*c%s invalid_dowhile_stmt[%d-%d]: %s failed!\n", p->level, ' ',
-                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'while' named_expression ':' NEWLINE !INDENT"));
+                  p->error_indicator ? "ERROR!" : "-", _mark, p->mark, "'dowhile' ':' NEWLINE !INDENT"));
     }
     _res = NULL;
   done:
