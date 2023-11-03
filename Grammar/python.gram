@@ -380,7 +380,7 @@ while_stmt[stmt_ty]:
 
 dowhile_stmt[stmt_ty]:
     | invalid_dowhile_stmt
-    | 'dowhile' ':' a=block 'while' b=named_expression { _PyAST_Dowhile(a, b, EXTRA) }
+    | 'dowhile' ':' a=block 'whiledo' b=named_expression { _PyAST_Dowhile(a, b, EXTRA) }
 
 # For statement
 # -------------
@@ -1305,6 +1305,10 @@ invalid_else_stmt:
     | a='else' ':' NEWLINE !INDENT {
         RAISE_INDENTATION_ERROR("expected an indented block after 'else' statement on line %d", a->lineno) }
 invalid_while_stmt:
+    | 'while' named_expression NEWLINE { RAISE_SYNTAX_ERROR("expected ':'") }
+    | a='while' named_expression ':' NEWLINE !INDENT {
+        RAISE_INDENTATION_ERROR("expected an indented block after 'while' statement on line %d", a->lineno) }
+invalid_dowhile_stmt:
     | 'while' named_expression NEWLINE { RAISE_SYNTAX_ERROR("expected ':'") }
     | a='while' named_expression ':' NEWLINE !INDENT {
         RAISE_INDENTATION_ERROR("expected an indented block after 'while' statement on line %d", a->lineno) }
